@@ -3,27 +3,39 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3010;
 
-// Early middleware setup
-import { setupEarlyMiddleware } from './src/services/middleware';
-setupEarlyMiddleware(app);
+const bootstrap = async (): Promise<void> => {
+  console.log('🚀 Starting reddit-studio-express-server bootstrap');
 
-// Health check routes
-import { createHealthRouter } from './src/services/health';
-app.use('/', createHealthRouter());
-app.use('/api/health', createHealthRouter());
+  const { initManagedClients } = await import('./src/services/managed');
+  await initManagedClients();
 
-// Error handling middleware (must be after all routes)
-import { setupErrorHandling } from './src/services/middleware';
-setupErrorHandling(app);
+  const app = express();
 
-// Start server
-import { startServer } from './src/services/server';
-startServer(app, {
-  port: PORT,
-  environment: process.env.NODE_ENV || 'development'
-});
+  const { setupEarlyMiddleware } = await import('./src/services/middleware');
+  setupEarlyMiddleware(app);
 
-export default app;
+  const { createHealthRouter } = await import('./src/services/health');
+  app.use('/', createHealthRouter());
+  app.use('/api/health', createHealthRouter());
+
+  const { createRedditRouter } = await import('./src/services/reddit');
+  app.use('/api/reddit', createRedditRouter());
+
+  const { createBusinessAccountDataRouter } = await import('./src/data/business-accounts');
+  app.use('/api/data/business-account', createBusinessAccountDataRouter());
+
+  const { setupErrorHandling } = await import('./src/services/middleware');
+  setupErrorHandling(app);
+
+  const { startServer } = await import('./src/services/server');
+  startServer(app, {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+  });
+};
+
+void bootstrap();
+
+export {};
