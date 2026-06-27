@@ -11,8 +11,10 @@ ADRs for **express-server-template** and apps created from it.
 5. [005 – Edge functions & Railway boundaries](./005-edge-functions-railway-only.md) — Edge → Railway only.
 6. [006 – Logging & error response standards](./006-logging-and-error-response-standards.md) — Emoji logging, response shape.
 7. [007 – Starter template layout](./007-starter-template-layout.md) — Shipped `src/services/` tree.
-16. [016 – Reddit text post publishing](./016-reddit-text-post-publishing.md)
-19. [019 – Business account tenancy](./019-business-account-tenancy.md)
+9. [009 – Entity routers in `src/data/`](./009-api-data-entity-routers.md) — Business account list handler.
+12. [012 – API docs catalog](./012-api-docs-catalog.md) — `GET /api-docs.json`.
+16. [016 – Reddit text post publishing](./016-reddit-text-post-publishing.md) — OAuth + publish.
+19. [019 – Business account tenancy](./019-business-account-tenancy.md) — `X-Business-Account-Id`.
 
 ## How to use
 

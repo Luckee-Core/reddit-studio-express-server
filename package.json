@@ -2,6 +2,15 @@
   "name": "reddit-studio-express-server",
   "version": "1.0.0",
   "description": "Express API for Reddit Studio — OAuth and text post publishing",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Luckee-Core/reddit-studio-express-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Luckee-Core/reddit-studio-express-server/issues"
+  },
+  "homepage": "https://github.com/Luckee-Core/reddit-studio-express-server#readme",
   "main": "index.ts",
   "scripts": {
     "start": "ts-node index.ts",

@@ -26,6 +26,10 @@ const bootstrap = async (): Promise<void> => {
   const { createBusinessAccountDataRouter } = await import('./src/data/business-accounts');
   app.use('/api/data/business-account', createBusinessAccountDataRouter());
 
+  const { createApiDocsRouter } = await import('./src/services/api-docs');
+  app.use('/', createApiDocsRouter());
+  console.log('✅ [bootstrap] API docs mounted at GET /api-docs.json');
+
   const { setupErrorHandling } = await import('./src/services/middleware');
   setupErrorHandling(app);
 
@@ -36,6 +40,9 @@ const bootstrap = async (): Promise<void> => {
   });
 };
 
-void bootstrap();
+bootstrap().catch((err) => {
+  console.error('❌ [bootstrap] Failed to start server', err);
+  process.exit(1);
+});
 
 export {};

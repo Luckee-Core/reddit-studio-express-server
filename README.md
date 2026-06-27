@@ -1,165 +1,92 @@
-# Express Server Template
+# Reddit Studio Express Server
 
-A production-ready Express API server template with TypeScript, perfect for quickly spinning up new backend services.
+Express API for **Reddit Studio**: business-account tenancy, Reddit OAuth connect, and markdown self-post publishing.
 
-## Features
+Open-source pair with [reddit-studio](https://github.com/Luckee-Core/reddit-studio). Governance: [mentorai-server `data/open-source/`](https://github.com/Luckee-Core/mentorai-server/tree/main/data/open-source).
 
-- ✅ **TypeScript** - Full type safety and modern JS features
-- ✅ **Express.js** - Fast, minimalist web framework
-- ✅ **CORS** - Configured for cross-origin requests
-- ✅ **Hot Reload** - Nodemon for development
-- ✅ **Health Checks** - Built-in health endpoints
-- ✅ **Error Handling** - Centralized error middleware
-- ✅ **Clean Structure** - Organized, scalable file structure
+## TL;DR
 
-## Quick Start
-
-### 1. Create a New Project from This Template
-
-**Using GitHub CLI:**
 ```bash
-gh repo create my-new-api --template trouthouse-tech/express-server-template --private --clone
-cd my-new-api
-```
-
-**Using degit:**
-```bash
-npx degit trouthouse-tech/express-server-template my-new-api
-cd my-new-api
-git init
-```
-
-### 2. Install Dependencies
-```bash
+git clone https://github.com/Luckee-Core/reddit-studio-express-server.git
+cd reddit-studio-express-server
 npm install
-```
-
-### 3. Run Development Server
-```bash
+cp .env.example .env
+# Apply docs/sql/001 → 002 in Supabase (see below)
 npm run dev
 ```
 
-Server will start on `http://localhost:3000`
+Server listens on **port 3010** by default. Pair with [reddit-studio](https://github.com/Luckee-Core/reddit-studio) on port **3000**.
 
-### 4. Test It
-```bash
-curl http://localhost:3000
-# {"status":"ok","message":"TroutHouseTech Express Server is running",...}
-```
+## Supabase SQL (run in order)
 
-## Available Endpoints
+| File | Purpose |
+|------|---------|
+| `docs/sql/001_business_accounts.sql` | Add `reddit_username` column to shared `business_accounts` |
+| `docs/sql/002_reddit_oauth_connections.sql` | Create `reddit_oauth_connections` table |
 
-- `GET /` - Health check
-- `GET /api/health` - Health check with detailed info
+**Note:** `business_accounts` may already exist if you share a Supabase project with other Luckee apps. Run `001` only to add the Reddit column — do not recreate the table.
 
-## Project Structure
-
-```
-express-server-template/
-├── index.ts                 # Main entry point
-├── src/
-│   └── services/
-│       ├── middleware/      # Express middleware
-│       │   ├── setup-early-middleware.ts
-│       │   ├── setup-error-handling.ts
-│       │   └── index.ts
-│       ├── health/          # Health check routes
-│       │   ├── create-health-router.ts
-│       │   └── index.ts
-│       └── server/          # Server startup logic
-│           ├── start-server.ts
-│           └── index.ts
-├── package.json
-├── tsconfig.json
-└── .gitignore
-```
-
-## Environment Variables
-
-Create a `.env` file in the root directory:
+## Environment
 
 ```env
-PORT=3000
+PORT=3010
 NODE_ENV=development
+SUPABASE_URL=
+SUPABASE_SERVICE_KEY=
+
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_OAUTH_REDIRECT_URI=http://localhost:3010/api/reddit/oauth/callback
+REDDIT_USER_AGENT=web:reddit-studio-express-server:1.0.0 (by /u/yourusername)
+
+# Where OAuth redirects after connect (reddit-studio web)
+REDDIT_OAUTH_WEB_ORIGIN=http://localhost:3000
+NEXT_PUBLIC_WEB_ORIGIN=http://localhost:3000
 ```
 
-## Scripts
+## Health check
 
-- `npm run dev` - Start development server with hot reload
-- `npm start` - Start production server
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run build:watch` - Watch mode compilation
-
-## Adding New Routes
-
-Feature routes and business logic live under `src/services/{feature}/`. When you add a database, put CRUD in `src/data/{table}/` (one file per operation) and call those functions from `processX()` in the service folder.
-
-1. Create a new router in `src/services/{feature}/`:
-
-```typescript
-// src/services/my-feature/create-my-router.ts
-import { Router, Request, Response } from 'express';
-
-export const createMyRouter = (): Router => {
-  const router = Router();
-  
-  router.get('/', (req: Request, res: Response) => {
-    res.json({ message: 'My feature works!' });
-  });
-  
-  return router;
-};
-```
-
-2. Export it in `src/services/my-feature/index.ts`:
-
-```typescript
-export { createMyRouter } from './create-my-router';
-```
-
-3. Mount it in `index.ts`:
-
-```typescript
-import { createMyRouter } from './src/services/my-feature';
-app.use('/api/my-feature', createMyRouter());
-```
-
-## Deployment
-
-### Build for Production
 ```bash
-npm run build
+curl http://localhost:3010/api/health
 ```
 
-### Run Production Build
-```bash
-NODE_ENV=production node dist/index.js
+```json
+{
+  "status": "ok",
+  "message": "Reddit Studio Express Server is running",
+  "timestamp": "2026-06-27T12:00:00.000Z",
+  "environment": "development"
+}
 ```
 
-## Architecture & agent rules
+## API
 
-Cursor agents and contributors should follow **`.cursor/rules/AGENTS.md`** and the ADRs in **`.cursor/architecture/`**.
+| Mount | Purpose |
+|-------|---------|
+| `GET /api/health` | Health check |
+| `GET /api-docs.json` | API documentation catalog |
+| `GET /api/data/business-account/list` | List business accounts |
+| `GET /api/reddit/oauth/start` | Start OAuth (redirect) |
+| `GET /api/reddit/oauth/start-url` | OAuth URL for web connect button |
+| `GET /api/reddit/oauth/callback` | Reddit OAuth callback |
+| `POST /api/reddit/publish-text-post` | Publish markdown self-post |
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| CRUD | `src/data/{table}/` | One folder per table, one function per file — **no business logic** |
-| HTTP + actions | `src/services/{feature}/` | Routers, handlers, `processX()` business logic |
-| Cross-cutting | `src/services/middleware`, `health`, `server` | Shipped in starter |
+Scoped routes require header `X-Business-Account-Id`.
 
-There is **no `src/domains/`** folder in this template.
+## Threat model
 
-## Architecture Principles
+- **v1 has no auth** on publish — open for local/server-to-server use. Add Bearer or network isolation before public deploy.
+- `REDDIT_CLIENT_SECRET` and refresh tokens stay server-side in Supabase.
+- See [SECURITY.md](./SECURITY.md).
 
-- **One function per file** — including each CRUD operation in its own file under `src/data/{table}/`
-- **Factory pattern** — `createXRouter(): Router` in `src/services/{feature}/`
-- **Index exports** — every folder has an `index.ts`
-- **CRUD vs services** — database calls only in `src/data/`; orchestration in `src/services/`
-- **Type safety** — use `type`, not `interface`
+## Wire contract
 
-## License
+[docs/oss/wire-contract.md](./docs/oss/wire-contract.md)
 
-MIT
+## Architecture
 
-## Author
+Follow **`.cursor/rules/AGENTS.md`** and **`.cursor/architecture/`**.
 
-TroutHouseTech
+- Reddit HTTP in `src/services/reddit/`
+- Business account list handler in `src/data/business-accounts/` (ADR 009)
+- No `src/domains/`

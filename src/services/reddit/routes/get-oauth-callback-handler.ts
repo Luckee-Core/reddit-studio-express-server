@@ -46,11 +46,11 @@ export const getOauthCallbackHandler = async (req: Request, res: Response): Prom
     }
 
     const webOrigin =
+      process.env.REDDIT_OAUTH_WEB_ORIGIN?.trim() ||
       process.env.NEWSLETTER_ADMIN_WEB_ORIGIN?.trim() ||
-      process.env.CITY_NONPROFITS_WEB_ORIGIN?.trim() ||
       process.env.NEXT_PUBLIC_WEB_ORIGIN?.trim() ||
       'http://localhost:3000';
-    const redirectTarget = `${webOrigin.replace(/\/$/, '')}/reddit?reddit_connected=1&username=${encodeURIComponent(result.redditUsername || '')}`;
+    const redirectTarget = `${webOrigin.replace(/\/$/, '')}/settings-reddit?connected=1&username=${encodeURIComponent(result.redditUsername || '')}`;
     console.log('📤 [reddit.getOauthCallbackHandler] Success');
     res.redirect(redirectTarget);
   } catch (error: unknown) {
