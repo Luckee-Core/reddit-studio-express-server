@@ -106,6 +106,24 @@ export const buildApiDocsCatalog = (): ApiDocsCatalog => {
       ],
     },
     {
+      name: 'Reddit scrape (Apify proxy)',
+      description:
+        'Same contract as reddit-scraper-express-server — used when free-reddit-scraper-web points REDDIT_SCRAPER_EXPRESS_URL at this host.',
+      endpoints: [
+        {
+          method: 'POST',
+          path: '/api/services/get-reddit-thread-data',
+          summary: 'Scrape Reddit thread or listing via Apify',
+          description: 'Requires header `x-scraper-api-key` matching `SCRAPER_API_KEY`.',
+          requestBody: {
+            contentType: 'application/json',
+            example: { url: 'https://www.reddit.com/r/test/comments/abc123/title/', mode: 'thread' },
+          },
+          responses: envelopeResponses,
+        },
+      ],
+    },
+    {
       name: 'Reddit publish',
       description: 'Publish markdown self-posts via stored OAuth tokens.',
       endpoints: [

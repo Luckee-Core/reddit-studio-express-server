@@ -13,8 +13,8 @@
   "homepage": "https://github.com/Luckee-Core/reddit-studio-express-server#readme",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node index.ts",
-    "dev": "nodemon --exec ts-node index.ts",
+    "start": "bash scripts/run-with-project-node.sh ts-node index.ts",
+    "dev": "bash scripts/run-with-project-node.sh nodemon --exec ts-node index.ts",
     "build": "tsc",
     "build:watch": "tsc --watch"
   },
@@ -33,6 +33,6 @@
     "typescript": "^6.0.3"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   }
 }

@@ -5,6 +5,7 @@
 
 import cors from 'cors';
 import express, { Express } from 'express';
+import { setupRequestLogging } from './setup-request-logging';
 
 const isLocalDevOrigin = (origin: string): boolean =>
   /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
@@ -39,4 +40,6 @@ export const setupEarlyMiddleware = (app: Express): void => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  setupRequestLogging(app);
 };

@@ -6,6 +6,9 @@ dotenv.config();
 const PORT = Number(process.env.PORT) || 3010;
 
 const bootstrap = async (): Promise<void> => {
+  const { assertMinNodeVersion } = await import('./src/utils/node/assert-min-node-version');
+  assertMinNodeVersion();
+
   console.log('🚀 Starting reddit-studio-express-server bootstrap');
 
   const { initManagedClients } = await import('./src/services/managed');
@@ -22,6 +25,9 @@ const bootstrap = async (): Promise<void> => {
 
   const { createRedditRouter } = await import('./src/services/reddit');
   app.use('/api/reddit', createRedditRouter());
+
+  const { createGetRedditThreadDataRouter } = await import('./src/services/get-reddit-thread-data');
+  app.use('/api/services/get-reddit-thread-data', createGetRedditThreadDataRouter());
 
   const { createBusinessAccountDataRouter } = await import('./src/data/business-accounts');
   app.use('/api/data/business-account', createBusinessAccountDataRouter());
